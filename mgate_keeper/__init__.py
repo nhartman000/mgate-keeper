@@ -13,6 +13,7 @@ class MGateKeeper:
         self.determinism_level = determinism_level
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
         self.response_cache = {}
+        self.api_call_count = 0
     
     def query(self, user_prompt, gates=None, context=None):
         gates = gates or []
@@ -20,11 +21,14 @@ class MGateKeeper:
         # Create cache key from prompt
         cache_key = hashlib.md5(user_prompt.encode()).hexdigest()
         
-        # Return cached response if in strict determinism mode
-        if self.determinism_level == "strict" and cache_key in self.response_cache:
-            return self.response_cache[cache_key]
+        # Return cached response if available
+        if cache_key in self.response_cache:
+            cached_result = self.response_cache[cache_key]
+            cached_result.from_cache = True
+            return cached_result
         
-        # Call OpenAI API
+        # Call OpenAI API only on first call
+        self.api_call_count += 1
         response = self.client.chat.completions.create(
             model=self.llm_model,
             messages=[{"role": "user", "content": user_prompt}]
@@ -32,13 +36,14 @@ class MGateKeeper:
         
         content = response.choices[0].message.content
         
-        # Generate audit trail with consistent hash for same prompt
+        # Generate consistent hash based on prompt
         audit_trail = {
-            'full_chain_hash': cache_key,  # Use prompt hash for reproducibility
+            'full_chain_hash': cache_key,
             'gates_applied': len(gates),
             'model': self.llm_model,
             'prompt_tokens': response.usage.prompt_tokens,
             'completion_tokens': response.usage.completion_tokens,
+            'api_call_number': self.api_call_count
         }
         
         result = MockResponse(
@@ -48,10 +53,10 @@ class MGateKeeper:
             gate_count=len(gates),
             audit_trail=audit_trail
         )
+        result.from_cache = False
         
-        # Cache if determinism enabled
-        if self.determinism_level == "strict":
-            self.response_cache[cache_key] = result
+        # Always cache the response
+        self.response_cache[cache_key] = result
         
         return result
     
@@ -91,5 +96,6 @@ class MockResponse:
         self.audit_trail = audit_trail or {}
         self.llm_reasoning_chain = []
         self.g8son_gates_applied = []
+        self.from_cache = False
 
 __all__ = ['MGateKeeper', 'G8sonGate', 'GstContext']
