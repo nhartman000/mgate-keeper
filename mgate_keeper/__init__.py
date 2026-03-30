@@ -1,33 +1,33 @@
 import os
 import json
 from dotenv import load_dotenv
-import openai
+from openai import OpenAI
 
 load_dotenv()
 
 class MGateKeeper:
     def __init__(self, llm_model='gpt-4-turbo'):
         self.llm_model = llm_model
-        openai.api_key = os.getenv('OPENAI_API_KEY')
+        self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
     
     def query(self, user_prompt, gates=None, context=None):
         gates = gates or []
         
         # Call OpenAI API
-        response = openai.ChatCompletion.create(
+        response = self.client.chat.completions.create(
             model=self.llm_model,
             messages=[{"role": "user", "content": user_prompt}]
         )
         
-        content = response['choices'][0]['message']['content']
+        content = response.choices[0].message.content
         
         # Generate audit trail
         audit_trail = {
-            'full_chain_hash': response['id'],
+            'full_chain_hash': response.id,
             'gates_applied': len(gates),
             'model': self.llm_model,
-            'prompt_tokens': response['usage']['prompt_tokens'],
-            'completion_tokens': response['usage']['completion_tokens'],
+            'prompt_tokens': response.usage.prompt_tokens,
+            'completion_tokens': response.usage.completion_tokens,
         }
         
         return MockResponse(
