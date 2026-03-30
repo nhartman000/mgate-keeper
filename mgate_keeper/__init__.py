@@ -1,6 +1,5 @@
 import os
 import json
-import hashlib
 from dotenv import load_dotenv
 from openai import OpenAI
 
@@ -9,38 +8,29 @@ load_dotenv()
 class MGateKeeper:
     def __init__(self, llm_model='gpt-4-turbo', seed=None, determinism_level=None):
         self.llm_model = llm_model
-        self.seed = seed
+        self.seed = seed if seed is not None else 42
         self.determinism_level = determinism_level
         self.client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
-        self.response_cache = {}
         self.api_call_count = 0
     
     def query(self, user_prompt, gates=None, context=None):
         gates = gates or []
         
-        # Create cache key from prompt
-        cache_key = hashlib.md5(user_prompt.encode()).hexdigest()
-        
-        # Return cached response if available
-        if cache_key in self.response_cache:
-            cached_result = self.response_cache[cache_key]
-            cached_result.from_cache = True
-            return cached_result
-        
-        # Call OpenAI API only on first call
+        # Always make a real API call (no caching)
         self.api_call_count += 1
         response = self.client.chat.completions.create(
             model=self.llm_model,
-            messages=[{"role": "user", "content": user_prompt}]
+            messages=[{"role": "user", "content": user_prompt}],
+            seed=self.seed  # Deterministic seed from YOUR system config
         )
         
         content = response.choices[0].message.content
         
-        # Generate consistent hash based on prompt
         audit_trail = {
-            'full_chain_hash': cache_key,
+            'full_chain_hash': response.id,
             'gates_applied': len(gates),
             'model': self.llm_model,
+            'seed': self.seed,
             'prompt_tokens': response.usage.prompt_tokens,
             'completion_tokens': response.usage.completion_tokens,
             'api_call_number': self.api_call_count
@@ -53,18 +43,12 @@ class MGateKeeper:
             gate_count=len(gates),
             audit_trail=audit_trail
         )
-        result.from_cache = False
-        
-        # Always cache the response
-        self.response_cache[cache_key] = result
         
         return result
     
     def save_audit_log(self, response, filename):
-        """Save audit log to file"""
         audit_data = {
             'audit_id': response.audit_trail['full_chain_hash'],
-            'query_input': {'user_prompt': 'cached'},
             'gates_passed': response.gates_passed,
             'overall_confidence': response.overall_confidence,
             'llm_response': {'content': response.content}
@@ -73,7 +57,6 @@ class MGateKeeper:
             json.dump(audit_data, f, indent=2)
     
     def load_audit_log(self, filename):
-        """Load audit log from file"""
         with open(filename, 'r') as f:
             return json.load(f)
 
@@ -96,6 +79,5 @@ class MockResponse:
         self.audit_trail = audit_trail or {}
         self.llm_reasoning_chain = []
         self.g8son_gates_applied = []
-        self.from_cache = False
 
 __all__ = ['MGateKeeper', 'G8sonGate', 'GstContext']
