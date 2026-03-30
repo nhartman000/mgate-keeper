@@ -1,20 +1,39 @@
-class MGateKeeper:
-    def __init__(self, arg1, arg2):
-        self.arg1 = arg1
-        self.arg2 = arg2
+import os
+from dotenv import load_dotenv
 
-    # Additional methods for MGateKeeper
+load_dotenv()
+
+class MGateKeeper:
+    def __init__(self, llm_model='gpt-4-turbo'):
+        self.llm_model = llm_model
+        self.openai_key = os.getenv('OPENAI_API_KEY')
+        self.google_key = os.getenv('GOOGLE_API_KEY')
+    
+    def query(self, user_prompt, gates=None, context=None):
+        gates = gates or []
+        return MockResponse(
+            content=f"Response to: {user_prompt}\n\nUsing model: {self.llm_model}",
+            gates_passed=True,
+            overall_confidence=0.85,
+            gate_count=len(gates)
+        )
 
 class G8sonGate:
-    def __init__(self, arg1, arg3):
-        self.arg1 = arg1
-        self.arg3 = arg3
-
-    # Additional methods for G8sonGate
+    def __init__(self, gate_id, gate_name, atomic_requirements=None):
+        self.gate_id = gate_id
+        self.gate_name = gate_name
+        self.atomic_requirements = atomic_requirements or []
 
 class GstContext:
-    def __init__(self, arg4, arg5):
-        self.arg4 = arg4
-        self.arg5 = arg5
+    def __init__(self, interpretation_posture, primary_modality):
+        self.interpretation_posture = interpretation_posture
+        self.primary_modality = primary_modality
 
-    # Additional methods for GstContext
+class MockResponse:
+    def __init__(self, content, gates_passed=True, overall_confidence=0.85, gate_count=0):
+        self.content = content
+        self.gates_passed = gates_passed
+        self.overall_confidence = overall_confidence
+        self.audit_trail = {'full_chain_hash': 'abc123def456'}
+
+__all__ = ['MGateKeeper', 'G8sonGate', 'GstContext']
