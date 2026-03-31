@@ -7,8 +7,8 @@ if not os.getenv('OPENAI_API_KEY'):
     print("ERROR: Set OPENAI_API_KEY")
     exit(1)
 
-
-keeper = MGateKeeper(llm_model=model)
+# Initialize the keeper
+keeper = MGateKeeper(llm_model="gpt-3.5-turbo")
 
 # Ask a question
 question = "What is photosynthesis? Explain simply."
@@ -18,10 +18,8 @@ response = keeper.query(question)
 print("\n" + "="*70)
 print("DEMO 1: Simple Question")
 print("="*70)
-print(f"\nModel: {model}\n")
-print(f"Answer:\n{response.content}\n")
-print(f"Gate Passed: {response.gates_passed}")
-print(f"Confidence: {response.overall_confidence * 100:.1f}%")
-print(f"\nAudit Trail:")
-print(json.dumps(response.audit_trail, indent=2))
+print(f"\nModel: gpt-3.5-turbo\n")
+print(f"Answer:\n{response.choices[0].message.content}\n")
+print(f"Confidence: {response.usage.completion_tokens}")
+print(f"\nResponse ID: {response.id}")
 print("="*70 + "\n")
