@@ -1,4 +1,5 @@
-{
+﻿{
+  "schema_version": "1.0",
   "gate_id": "G_PHOTOSYNTHESIS",
   "gate_name": "Photosynthesis Explanation",
   "atomic_requirements": [
@@ -22,5 +23,19 @@
       "requirement": "Keep explanation simple",
       "threshold_efficiency": 0.90
     }
-  ]
+  ],
+  "expects": [
+    "event_candidate",
+    "confidence",
+    "ambiguity"
+  ],
+  "produces": [
+    "decision",
+    "status",
+    "trace_id"
+  ],
+  "failure_policy": {
+    "on_reject": "halt",
+    "on_ambiguity": "human_verify"
+  }
 }

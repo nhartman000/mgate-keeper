@@ -1,4 +1,5 @@
-{
+﻿{
+  "schema_version": "1.0",
   "audit_id": "AUDIT_PHOTO_001",
   "query": "What is photosynthesis? Explain simply.",
   "timestamp": "2026-03-30T00:00:00Z",
@@ -8,8 +9,10 @@
     "G_PHOTOSYNTHESIS_STRICT"
   ],
   "context_applied": "Factual",
+  "context_ref": "CTX_PHOTOSYNTHESIS",
   "model": "gpt-3.5-turbo",
   "seed": 42,
+  "run_trace_id": "RUN_01H0EXAMPLE000000000000000",
   "responses": [
     {
       "call_number": 1,
@@ -20,6 +23,30 @@
       "call_number": 2,
       "response_id": "chatcmpl-DPIeKTtYNb3LDB8SJk8o6J8xXYJlY",
       "content": "Photosynthesis is the process by which green plants and some other organisms use sunlight to synthesize nutrients from carbon dioxide and water. In simple terms, plants use sunlight to make their own food."
+    }
+  ],
+  "events": [
+    {
+      "trace_id": "TRJ_01H0EVENT00000000000000000",
+      "parent_trace_id": "RUN_01H0EXAMPLE000000000000000",
+      "run_trace_id": "RUN_01H0EXAMPLE000000000000000",
+      "source_objects": {
+        "project_id": "DEMO_PHOTO",
+        "gst_id": "CTX_PHOTOSYNTHESIS",
+        "gate_id": "G_PHOTOSYNTHESIS"
+      },
+      "source_paths": {
+        "mg8": "photosynthesis.mg8",
+        "gst": "gst/photosynthesis.gst",
+        "g8son": "g8son/photosynthesis.g8son"
+      },
+      "decision": "approve",
+      "status": "pass",
+      "decision_reason": "confidence_above_threshold",
+      "confidence_at_decision": 0.85,
+      "ambiguity": false,
+      "rule_triggered": ["R1"],
+      "timestamp": "2026-03-31T00:00:00Z"
     }
   ]
 }
