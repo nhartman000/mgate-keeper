@@ -1,32 +1,39 @@
-﻿{
-  "schema_version": "1.0",
-  "project_name": "Photosynthesis Reproducible Demo",
-  "project_id": "DEMO_PHOTO",
-  "description": "Demonstrates deterministic LLM responses using multiple gates",
-  "g8son_gates": [
-    "g8son/photosynthesis.g8son",
-    "g8son/photosynthesis2.g8son"
-  ],
-  "gst_context": "gst/photosynthesis.gst",
-  "qson_audit_log": "qson/photosynthesis.qson",
-  "run_trace_id": "RUN_01H0EXAMPLE000000000000000",
-  "compatibility": {
-    "gst": ">=1.0",
-    "g8son": ">=1.0",
-    "qson": ">=1.0"
-  },
-  "pipeline_contract": [
-    {
-      "from": "gst",
-      "to": "g8son",
-      "fields": ["event_candidate", "confidence", "ambiguity"]
-    },
-    {
-      "from": "g8son",
-      "to": "qson",
-      "fields": ["decision", "status", "trace_id"]
-    }
-  ],
-  "model": "gpt-3.5-turbo",
-  "seed": 42
+{
+    "schema_version":  "1.0",
+    "project_id":  "DEMO_PHOTO",
+    "description":  "Demonstrates deterministic LLM responses using multiple gates",
+    "g8son_gates":  [
+                        "g8son/photosynthesis.g8son",
+                        "g8son/photosynthesis2.g8son"
+                    ],
+    "gst_context":  "gst/photosynthesis.gst",
+    "qson_audit_log":  "qson/photosynthesis.qson",
+    "run_trace_id":  "RUN_01H0EXAMPLE000000000000000",
+    "compatibility":  {
+                          "gst":  "\u003e=1.0",
+                          "g8son":  "\u003e=1.0",
+                          "qson":  "\u003e=1.0"
+                      },
+    "pipeline_contract":  [
+                              {
+                                  "from":  "gst",
+                                  "to":  "g8son",
+                                  "fields":  [
+                                                 "event_candidate",
+                                                 "confidence",
+                                                 "ambiguity"
+                                             ]
+                              },
+                              {
+                                  "from":  "g8son",
+                                  "to":  "qson",
+                                  "fields":  [
+                                                 "decision",
+                                                 "status",
+                                                 "trace_id"
+                                             ]
+                              }
+                          ],
+    "model":  "gpt-3.5-turbo",
+    "seed":  42
 }

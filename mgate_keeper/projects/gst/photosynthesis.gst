@@ -1,4 +1,4 @@
-﻿{
+{
   "schema_version": "1.0",
   "context_id": "CTX_PHOTOSYNTHESIS",
   "interpretation_posture": "Factual",
