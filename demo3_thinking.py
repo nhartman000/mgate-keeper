@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 import json
-from mgate_keeper import MGateKeeper, G8sonGate, GstContext
+from mgate_keeper import MGateKeeper
 
 model = os.getenv('MGATE_MODEL', 'gpt-4-turbo')
 if not os.getenv('OPENAI_API_KEY'):
@@ -9,38 +9,24 @@ if not os.getenv('OPENAI_API_KEY'):
     exit(1)
 
 keeper = MGateKeeper(llm_model=model)
-gate = G8sonGate(gate_id="G3", gate_name="Thinking", atomic_requirements=[
-    {"req_id": "R1", "mmol_vector": "🧠💭", "requirement": "Show reasoning", "threshold_efficiency": 0.75}
-])
-context = GstContext(interpretation_posture="Detailed", primary_modality="🧠")
 
 print("\n" + "="*70)
-print("DEMO 3: Watch AI Think")
+print("DEMO 3: Photosynthesis with Detailed Explanation")
 print("="*70)
 print(f"\nModel: {model}\n")
 
-response = keeper.query(
-    user_prompt="Why do we have gravity? Explain step by step.",
-    gates=[gate],
-    context=context
-)
+question = "What is photosynthesis? Explain the process step by step."
+response = keeper.query(question)
 
 print("="*70)
-print("AI'S THINKING PROCESS")
+print("DETAILED EXPLANATION")
 print("="*70 + "\n")
 
-# If reasoning chain exists, show it
-if response.llm_reasoning_chain:
-    for step in response.llm_reasoning_chain:
-        print(f"Step {step['step']}: {step.get('mmol_vector', '🧠')}")
-        print(f"  Thought: {step['internal_thought']}")
-        print(f"  Confidence: {step['confidence'] * 100:.1f}%\n")
-else:
-    print("(No reasoning chain available in current version)\n")
+print(f"{response.content}\n")
 
 print("="*70)
-print("FINAL ANSWER")
+print("QUALITY METRICS")
 print("="*70)
-print(f"\n{response.content}\n")
 print(f"Overall Confidence: {response.overall_confidence * 100:.1f}%")
+print(f"Gates Passed: {response.gates_passed}")
 print("="*70 + "\n")
