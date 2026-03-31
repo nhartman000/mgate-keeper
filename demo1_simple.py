@@ -4,7 +4,7 @@ import json
 from mgate_keeper import MGateKeeper
 
 # Initialize the keeper with the model
-model = os.getenv('MGATE_MODEL', 'gpt-4-turbo')
+model = os.getenv('MGATE_MODEL', 'gpt-3.5-turbo')
 if not os.getenv('OPENAI_API_KEY'):
     print("ERROR: Set OPENAI_API_KEY")
     exit(1)
