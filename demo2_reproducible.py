@@ -1,85 +1,85 @@
 #!/usr/bin/env python3
 import os
-import json
+from pathlib import Path
+
 from mgate_keeper import MGateKeeper
 
-if not os.getenv('OPENAI_API_KEY'):
+if not os.getenv("OPENAI_API_KEY"):
     print("ERROR: Set OPENAI_API_KEY")
-    exit(1)
+    raise SystemExit(1)
 
-# Load project
 keeper = MGateKeeper(project_file="mgate_keeper/projects/photosynthesis.mg8")
 
-print("\n" + "="*70)
-print("DEMO 2: Deterministic Reproducibility with Gates & Gestalt")
-print("="*70)
+print("\n" + "=" * 70)
+print("DEMO 2: Reproducibility Experiment with G8SON + GST Controls")
+print("=" * 70)
 
-print(f"\n📋 PROJECT FILE LOADED: photosynthesis.mg8")
-print(f"   Project: {keeper.project['project_name']}")
-print(f"   ID: {keeper.project['project_id']}")
+print("\nProject:", keeper.project["project_name"])
+print("Project ID:", keeper.project["project_id"])
 
-print(f"\n🔐 GATES ASSEMBLED ({len(keeper.gates)}):")
+print(f"\nG8SON gates loaded ({len(keeper.gates)}):")
 for gate in keeper.gates:
-    print(f"   ✓ {gate.gate_id}: {gate.gate_name}")
+    print(f"  - {gate.gate_id}: {gate.gate_name}")
     for req in gate.atomic_requirements:
-        print(f"      - {req['requirement']}")
+        print(f"      * {req.get('requirement', req)}")
 
-print(f"\n🎭 GESTALT CONTEXT LOADED:")
-print(f"   Posture: {keeper.context.interpretation_posture}")
-print(f"   Modality: {keeper.context.primary_modality}")
+print("\nGST context:")
+print("  posture:", keeper.context.interpretation_posture)
+print("  modality:", keeper.context.primary_modality)
+print("  constraints:")
+for constraint in keeper.context.constraints:
+    print("    *", constraint)
 
-print(f"\n📝 PROMPT:")
 prompt = "What is photosynthesis? Explain simply."
-print(f"   '{prompt}'")
+print("\nPrompt:", repr(prompt))
 
-print("\n" + "="*70)
-print("API CALL #1:")
-print("="*70)
-response1 = keeper.query(user_prompt=prompt, gates=keeper.gates, context=keeper.context)
+print("\n" + "=" * 70)
+print("API CALL #1")
+print("=" * 70)
+response1 = keeper.query(prompt)
 answer1 = response1.choices[0].message.content
-print(f"\n{answer1}\n")
+print(answer1)
 
-print("="*70)
-print("API CALL #2 (same prompt, gates, gestalt):")
-print("="*70)
+print("\n" + "=" * 70)
+print("API CALL #2 — same project, prompt, seed, temperature, gates, and GST context")
+print("=" * 70)
 keeper2 = MGateKeeper(project_file="mgate_keeper/projects/photosynthesis.mg8")
-response2 = keeper2.query(user_prompt=prompt, gates=keeper2.gates, context=keeper2.context)
+response2 = keeper2.query(prompt)
 answer2 = response2.choices[0].message.content
-print(f"\n{answer2}\n")
+print(answer2)
 
-# Create audit log
+identical = answer1 == answer2
+
 audit_log = {
-    "audit_id": "AUDIT_PHOTO_001",
+    "qson_version": "1.0",
+    "run_id": keeper.project.get("run_trace_id", "RUN_DEMO_PHOTO"),
+    "experiment": "fixed-control reproducibility",
     "query": prompt,
-    "timestamp": "2026-03-30T00:00:00Z",
-    "project_id": keeper.project['project_id'],
-    "gates_applied": [g.gate_id for g in keeper.gates],
-    "context_applied": keeper.context.interpretation_posture,
+    "project_id": keeper.project["project_id"],
+    "gate_ids": [g.gate_id for g in keeper.gates],
+    "gst_context_id": keeper.context.context_id,
     "model": keeper.llm_model,
     "seed": keeper.seed,
+    "temperature": 0,
+    "identical_outputs_observed": identical,
     "responses": [
-        {
-            "call_number": 1,
-            "response_id": response1.id,
-            "content": answer1
-        },
-        {
-            "call_number": 2,
-            "response_id": response2.id,
-            "content": answer2
-        }
-    ]
+        {"call_number": 1, "response_id": response1.id, "content": answer1},
+        {"call_number": 2, "response_id": response2.id, "content": answer2},
+    ],
+    "note": (
+        "An identical pair is an empirical observation for this run, not a universal "
+        "guarantee of provider-level determinism."
+    ),
 }
 
-# Save audit log
-with open(keeper.project['qson_audit_log'], 'w') as f:
-    json.dump(audit_log, f, indent=2)
+output_ref = keeper.project["qson_audit_log"]
+output_path = Path(keeper.project_path).parent / output_ref
+keeper.save_audit_log(audit_log, str(output_path))
 
-print("="*70)
-if answer1 == answer2:
-    print("✅ DETERMINISTIC: Identical answers from two API calls")
-    print(f"✅ AUDIT LOG SAVED: {keeper.project['qson_audit_log']}")
+print("\n" + "=" * 70)
+if identical:
+    print("MATCH OBSERVED: the two returned texts are identical")
 else:
-    print("❌ Different answers")
-    print(f"✓ AUDIT LOG SAVED: {keeper.project['qson_audit_log']}")
-print("="*70 + "\n")
+    print("VARIATION OBSERVED: the two returned texts differ")
+print("Audit record:", output_path)
+print("=" * 70 + "\n")
