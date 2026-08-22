@@ -1,9 +1,0 @@
-LICENSE
-README.md
-setup.py
-mgate_keeper/__init__.py
-mgate_keeper.egg-info/PKG-INFO
-mgate_keeper.egg-info/SOURCES.txt
-mgate_keeper.egg-info/dependency_links.txt
-mgate_keeper.egg-info/requires.txt
-mgate_keeper.egg-info/top_level.txt
