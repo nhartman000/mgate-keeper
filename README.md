@@ -2,7 +2,7 @@
 
 **MGate Keeper** is a small reproducibility/control experiment for applying structured G8SON gate requirements and GST context to LLM requests and recording the resulting runs for audit.
 
-It is part of the broader MG8 research stack, but it is **not** the canonical definition of the MG8 file formats. The current format baselines live in the dedicated `mg8`, `gst`, `g8son`, and `qson-` repositories.
+It is part of the broader MG8 research stack, but it is **not** the canonical definition of the MG8 file formats. The current format baselines live in the dedicated `mg8`, `gst`, `g8son`, and `qson` repositories.
 
 ## What this repository actually does
 
