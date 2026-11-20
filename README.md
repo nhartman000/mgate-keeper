@@ -125,3 +125,7 @@ MGate Keeper is an experimental runtime/profile that consumes part of this archi
 ## Status
 
 Research/demo implementation. The repository is useful for reproducibility experiments and interface validation; it should not be presented as formal proof of deterministic LLM behavior.
+
+## License
+
+Copyright (c) 2026 American Milestone Inc. All rights reserved. Original code and independently authored specifications are publicly viewable for evaluation only — see [LICENSE](LICENSE). Copies obtained earlier under the previous MIT license keep the rights that license granted.
